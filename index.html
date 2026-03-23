@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title>game</title>
+   <link rel="stylesheet" href="index.css">   
+</head>
+<body>
+    <h1>STONE PAPER SCISSOR Game</h1>
+    <button class="button" onclick="
+       let computerChose='';
+       let clickno=Math.random()*3
+       if(clickno>0 && clickno<=1){
+         computerChose='STONE';
+       }else if(clickno>1 && clickno<=2){
+        computerChose='PAPER';
+       }else{
+        computerChose='SCISSOR';
+       }
+       const computerChosemsg=`Computer has choosen ${computerChose}`;
+
+       let resultmsg;
+       if(computerChose==='STONE'){
+        resultmsg=`It's TIE`;
+       }
+       else if(computerChose==='PAPER'){
+        resultmsg='computer WON';
+       }
+       else{
+        resultmsg='You WON';
+       }
+       result=`You have choosen STONE, ${computerChosemsg} .\n ${resultmsg}`;
+       document.querySelector('#item-cal').innerText=`${result}`;
+    ">STONE</button>
+    <button class="button"onclick="
+        computerChose='';
+        clickno=Math.random()*3
+       if(clickno>0 && clickno<=1){
+         computerChose='STONE';
+       }else if(clickno>1 && clickno<=2){
+        computerChose='PAPER';
+       }else{
+        computerChose='SCISSOR';
+       }
+        computerChosemsg=`Computer has choosen ${computerChose}`;
+
+    
+       if(computerChose==='STONE'){
+        resultmsg='You WON';
+       }
+       else if(computerChose==='PAPER'){
+        resultmsg=`It's TIE`;
+       }
+       else{
+        resultmsg='Computer WON';
+       }
+        result=`You have choosen PAPER, ${computerChosemsg} .\n ${resultmsg}`;
+       document.querySelector('#item-cal').innerText=`${result}`;
+    ">PAPER</button>
+    <button class="button" onclick="
+        computerChose='';
+        clickno=Math.random()*3
+       if(clickno>0 && clickno<=1){
+         computerChose='STONE';
+       }else if(clickno>1 && clickno<=2){
+        computerChose='PAPER';
+       }else{
+        computerChose='SCISSOR';
+       }
+        computerChosemsg=`Computer has choosen ${computerChose}`;
+
+        
+       if(computerChose==='STONE'){
+        resultmsg='Computer WON';
+       }
+       else if(computerChose==='PAPER'){
+        resultmsg='You WON';
+       }
+       else{
+        resultmsg=`It's TIE`;
+       }
+        result=`You have choosen SCISSOR, ${computerChosemsg} .\n ${resultmsg}`;
+       document.querySelector('#item-cal').innerText=`${result}`;
+    ">SCISSOR</button>
+    <p>Choose any one of (STONE,PAPPER,SCISSSOR)</p>
+    <h1 id="item-cal"></h1>
+    <script href="index.js"></script>
+</body>
+</html>

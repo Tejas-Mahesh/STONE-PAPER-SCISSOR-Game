@@ -1,0 +1,17 @@
+    *{
+        text-align: center;
+        background-color: blanchedalmond;
+    }
+    h1:first-child{
+      text-decoration: underline;
+    }
+    .button{
+      margin:20px;
+      padding: 15px;
+      border: solid black ;
+      border-radius: 4px;
+      color: rgb(85, 23, 23);
+    }
+    h1:last-child{
+      font-size: 1px;
+    }
