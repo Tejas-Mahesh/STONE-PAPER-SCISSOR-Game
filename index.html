@@ -1,102 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <title>game</title>
-   <link rel="stylesheet" href="style.css">   
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stone Paper Scissor</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>STONE PAPER SCISSOR Game</h1>
-    <button class="button" onclick="
-       let computerChose='';
-       let clickno=Math.random()*3
-       if(clickno>0 && clickno<=1){
-         computerChose='STONE';
-       }else if(clickno>1 && clickno<=2){
-        computerChose='PAPER';
-       }else{
-        computerChose='SCISSOR';
-       }
-       const computerChosemsg=`Computer has choosen ${computerChose}`;
 
-       let resultmsg;
-       if(computerChose==='STONE'){
-        resultmsg=`It's TIE`;
-        score.Tie+=1;
-       }
-       else if(computerChose==='PAPER'){
-        resultmsg='computer WON';
-        score.Lost+=1;
-       }
-       else{
-        resultmsg='You WON';
-        score.Win+=1;
-       }
-       result=`You have choosen STONE, ${computerChosemsg} .\n ${resultmsg}`;
-       document.querySelector('#item-cal').innerText=`${result}`;
-       
-       document.querySelector('#scorr').innerText=`Win:${score.Win} Lost:${score.Lost} Tie:${score.Tie}`;
-    ">STONE</button>
-    <button class="button"onclick="
-        computerChose='';
-        clickno=Math.random()*3
-       if(clickno>0 && clickno<=1){
-         computerChose='STONE';
-       }else if(clickno>1 && clickno<=2){
-        computerChose='PAPER';
-       }else{
-        computerChose='SCISSOR';
-       }
-        computerChosemsg=`Computer has choosen ${computerChose}`;
+    <div class="container">
 
-    
-       if(computerChose==='STONE'){
-        resultmsg='You WON';
-        score.Win+=1;
-       }
-       else if(computerChose==='PAPER'){
-        resultmsg=`It's TIE`;
-        score.Tie+=1;
-       }
-       else{
-        resultmsg='Computer WON';
-        score.Lost+=1;
-       }
-        result=`You have choosen PAPER, ${computerChosemsg} .\n ${resultmsg}`;
-       document.querySelector('#item-cal').innerText=`${result}`;
-       document.querySelector('#scorr').innerText=` Win:${score.Win} Lost:${score.Lost} Tie:${score.Tie}`;
-    ">PAPER</button>
-    <button class="button" onclick="
-        computerChose='';
-        clickno=Math.random()*3
-       if(clickno>0 && clickno<=1){
-         computerChose='STONE';
-       }else if(clickno>1 && clickno<=2){
-        computerChose='PAPER';
-       }else{
-        computerChose='SCISSOR';
-       }
-        computerChosemsg=`Computer has choosen ${computerChose}`;
+        <h1>STONE PAPER SCISSOR</h1>
 
-        
-       if(computerChose==='STONE'){
-        resultmsg='Computer WON';
-        score.Lost+=1;
-       }
-       else if(computerChose==='PAPER'){
-        resultmsg='You WON';
-        score.Win+=1;
-       }
-       else{
-        resultmsg=`It's TIE`;
-        score.Tie+=1;
-       }
-        result=`You have choosen SCISSOR, ${computerChosemsg} .\n ${resultmsg}`;
-       document.querySelector('#item-cal').innerText=`${result}`;
-       document.querySelector('#scorr').innerText=` Win:${score.Win} Lost:${score.Lost} Tie:${score.Tie}`;
-    ">SCISSOR</button>
-    <p>Choose any one (STONE,PAPPER OR SCISSSOR)</p>
-    <h1 id="item-cal"></h1>
-    <h1 id="scorr"></h1>
-    <script src="style.js"></script>
+        <div class="game-buttons">
+            <button class="choice-btn" onclick="playGame('STONE')">
+                ✊
+                <span>STONE</span>
+            </button>
+
+            <button class="choice-btn" onclick="playGame('PAPER')">
+                ✋
+                <span>PAPER</span>
+            </button>
+
+            <button class="choice-btn" onclick="playGame('SCISSOR')">
+                ✌️
+                <span>SCISSOR</span>
+            </button>
+        </div>
+
+        <div class="result-box">
+            <h2 id="result">Start The Game</h2>
+            <p id="moves"></p>
+        </div>
+
+        <div class="score-board">
+            <div class="score-card">
+                <h3 id="win">0</h3>
+                <p>Wins</p>
+            </div>
+
+            <div class="score-card">
+                <h3 id="lost">0</h3>
+                <p>Lost</p>
+            </div>
+
+            <div class="score-card">
+                <h3 id="tie">0</h3>
+                <p>Ties</p>
+            </div>
+        </div>
+
+        <button class="reset-btn" onclick="resetScore()">
+            Reset Score
+        </button>
+
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
