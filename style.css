@@ -37,20 +37,7 @@ h1{
 }
 
 .choice-btn{
-    width:160px;
-    height:160px;
-    border:none;
-    border-radius:20px;
-    background:#243b55;
-    color:white;
-    font-size:55px;
-    cursor:pointer;
-    transition:0.3s;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
+
 }
 
 .choice-btn span{
