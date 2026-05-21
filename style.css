@@ -90,12 +90,7 @@ h1{
 }
 
 .score-card{
-    width:150px;
-    padding:20px;
-    border-radius:15px;
-    background:#243b55;
-    color:white;
-    transition:0.3s;
+   
 }
 
 .score-card:hover{
