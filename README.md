@@ -17,11 +17,6 @@
    - Stone beats Scissor
    - Paper beats Stone
    - Scissor beats Paper
-
-## 💡 Future Improvements
-- Add animations
-- Add sound effects
-
 ---
 
 Made with ❤️ by Tejas
