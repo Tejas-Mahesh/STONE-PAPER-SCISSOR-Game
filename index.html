@@ -3,60 +3,544 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stone Paper Scissor</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Stone Paper Scissors - Deluxe Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism panel styling */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Choice button styling */
+        .choice-btn {
+            position: relative;
+            background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            transform: translateY(-8px) scale(1.05);
+            border-color: rgba(99, 102, 241, 0.8);
+            box-shadow: 0 12px 30px -5px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.25) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        .choice-btn:active:not(:disabled) {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        /* Shake animations for hands */
+        @keyframes shakePlayerHand {
+            0%, 100% { transform: translateY(0) rotate(20deg); }
+            25% { transform: translateY(-30px) rotate(5deg); }
+            50% { transform: translateY(15px) rotate(30deg); }
+            75% { transform: translateY(-25px) rotate(10deg); }
+        }
+
+        @keyframes shakeComputerHand {
+            0%, 100% { transform: translateY(0) rotate(-20deg) scaleX(-1); }
+            25% { transform: translateY(-30px) rotate(-5deg) scaleX(-1); }
+            50% { transform: translateY(15px) rotate(-30deg) scaleX(-1); }
+            75% { transform: translateY(-25px) rotate(-10deg) scaleX(-1); }
+        }
+
+        .shaking-player {
+            animation: shakePlayerHand 0.45s ease-in-out infinite;
+        }
+
+        .shaking-computer {
+            animation: shakeComputerHand 0.45s ease-in-out infinite;
+        }
+
+        /* Static base transformations for hands */
+        .player-hand-base {
+            transform: rotate(20deg);
+        }
+
+        .computer-hand-base {
+            transform: rotate(-20deg) scaleX(-1);
+        }
+
+        /* Reveal Pop Animation */
+        @keyframes revealPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reveal-pop {
+            animation: revealPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Outcome Status Dynamic Glow Borders */
+        .glow-win {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 35px rgba(52, 211, 153, 0.4) !important;
+        }
+
+        .glow-lose {
+            border-color: #f87171 !important;
+            box-shadow: 0 0 35px rgba(248, 113, 113, 0.4) !important;
+        }
+
+        .glow-tie {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 35px rgba(251, 191, 36, 0.4) !important;
+        }
+
+        /* Particle Canvas Overlay */
+        #fxCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
 </head>
-<body>
+<body class="flex items-center justify-center p-4 md:p-8 text-slate-100">
 
-    <div class="container">
+    <!-- FX Particle Canvas -->
+    <canvas id="fxCanvas"></canvas>
 
-        <h1>STONE PAPER SCISSOR</h1>
+    <!-- Main Container Card -->
+    <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 md:p-8 flex flex-col items-center gap-6 relative overflow-hidden transition-all duration-500">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-1">
+            <h1 class="text-3xl md:text-5xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-300 to-fuchsia-400 uppercase drop-shadow-md">
+                Stone Paper Scissors
+            </h1>
+            <p class="text-slate-400 text-xs md:text-sm font-medium tracking-wide">Select your move to challenge the AI!</p>
+        </header>
 
-        <div class="game-buttons">
-            <button class="choice-btn" onclick="playGame('STONE')">
-                ✊
-                <span>STONE</span>
+        <!-- Battle Arena -->
+        <div id="arena" class="w-full glass-card rounded-2xl p-6 flex flex-col items-center justify-between min-h-[220px] relative transition-all duration-300">
+            
+            <!-- Turn Header/Status -->
+            <div id="statusBadge" class="px-4 py-1.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider bg-slate-800/80 text-indigo-300 border border-slate-700 mb-2">
+                Ready To Play
+            </div>
+
+            <!-- Hands Display Row -->
+            <div class="flex items-center justify-around w-full my-auto px-4 gap-2">
+                <!-- Player Hand Side -->
+                <div class="flex flex-col items-center space-y-2">
+                    <div id="playerHand" class="text-6xl md:text-8xl transition-all duration-300 player-hand-base filter drop-shadow-lg">
+                        ✊
+                    </div>
+                    <span class="text-xs md:text-sm font-bold text-cyan-400 tracking-wider uppercase">You</span>
+                </div>
+
+                <!-- VS Symbol -->
+                <div class="text-2xl md:text-4xl font-black text-slate-600 italic select-none">
+                    VS
+                </div>
+
+                <!-- Computer Hand Side -->
+                <div class="flex flex-col items-center space-y-2">
+                    <div id="computerHand" class="text-6xl md:text-8xl transition-all duration-300 computer-hand-base filter drop-shadow-lg">
+                        ✊
+                    </div>
+                    <span class="text-xs md:text-sm font-bold text-fuchsia-400 tracking-wider uppercase">Bot</span>
+                </div>
+            </div>
+
+            <!-- Result Display Text -->
+            <div class="text-center mt-2 h-10 flex flex-col items-center justify-center">
+                <h2 id="resultText" class="text-xl md:text-2xl font-extrabold tracking-wide text-slate-200">
+                    First to 10? Let's go!
+                </h2>
+                <p id="movesDetailText" class="text-xs text-slate-400 h-4 mt-0.5 font-medium"></p>
+            </div>
+        </div>
+
+        <!-- Choice Buttons Area -->
+        <div class="grid grid-cols-3 gap-3 md:gap-5 w-full">
+            <button class="choice-btn rounded-2xl p-4 flex flex-col items-center justify-center gap-2 group cursor-pointer" onclick="playGame('STONE')">
+                <span class="text-4xl md:text-5xl group-hover:scale-110 transition-transform">✊</span>
+                <span class="text-xs md:text-sm font-bold text-slate-300 group-hover:text-white tracking-widest uppercase">Stone</span>
             </button>
 
-            <button class="choice-btn" onclick="playGame('PAPER')">
-                ✋
-                <span>PAPER</span>
+            <button class="choice-btn rounded-2xl p-4 flex flex-col items-center justify-center gap-2 group cursor-pointer" onclick="playGame('PAPER')">
+                <span class="text-4xl md:text-5xl group-hover:scale-110 transition-transform">✋</span>
+                <span class="text-xs md:text-sm font-bold text-slate-300 group-hover:text-white tracking-widest uppercase">Paper</span>
             </button>
 
-            <button class="choice-btn" onclick="playGame('SCISSOR')">
-                ✌️
-                <span>SCISSOR</span>
+            <button class="choice-btn rounded-2xl p-4 flex flex-col items-center justify-center gap-2 group cursor-pointer" onclick="playGame('SCISSOR')">
+                <span class="text-4xl md:text-5xl group-hover:scale-110 transition-transform">✌️</span>
+                <span class="text-xs md:text-sm font-bold text-slate-300 group-hover:text-white tracking-widest uppercase">Scissors</span>
             </button>
         </div>
 
-        <div class="result-box">
-            <h2 id="result">Start The Game</h2>
-            <p id="moves"></p>
-        </div>
-
-        <div class="score-board">
-            <div class="score-card">
-                <h3 id="win">0</h3>
-                <p>Wins</p>
+        <!-- Scoreboard (Fixed layout with dynamic auto width and clean spacing) -->
+        <div class="grid grid-cols-3 gap-3 w-full">
+            <div class="glass-card rounded-2xl p-3 md:p-4 text-center border-b-2 border-emerald-500/50">
+                <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">Wins</p>
+                <h3 id="winScore" class="text-2xl md:text-4xl font-black text-slate-100 transition-all duration-300">0</h3>
             </div>
 
-            <div class="score-card">
-                <h3 id="lost">0</h3>
-                <p>Lost</p>
+            <div class="glass-card rounded-2xl p-3 md:p-4 text-center border-b-2 border-rose-500/50">
+                <p class="text-xs text-rose-400 font-bold uppercase tracking-wider mb-1">Losses</p>
+                <h3 id="lostScore" class="text-2xl md:text-4xl font-black text-slate-100 transition-all duration-300">0</h3>
             </div>
 
-            <div class="score-card">
-                <h3 id="tie">0</h3>
-                <p>Ties</p>
+            <div class="glass-card rounded-2xl p-3 md:p-4 text-center border-b-2 border-amber-500/50">
+                <p class="text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">Ties</p>
+                <h3 id="tieScore" class="text-2xl md:text-4xl font-black text-slate-100 transition-all duration-300">0</h3>
             </div>
         </div>
 
-        <button class="reset-btn" onclick="resetScore()">
-            Reset Score
-        </button>
+        <!-- Action Controls -->
+        <div class="flex items-center justify-between w-full pt-2">
+            <!-- Audio Toggle Button -->
+            <button id="audioBtn" onclick="toggleAudio()" class="px-4 py-2 rounded-xl glass-card text-slate-400 hover:text-white text-xs font-semibold flex items-center gap-2 transition-all">
+                <span id="audioIcon">🔊</span> Sound On
+            </button>
+
+            <!-- Reset Score Button -->
+            <button onclick="resetScore()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs tracking-wider uppercase shadow-lg shadow-rose-900/30 hover:shadow-rose-900/50 active:scale-95 transition-all cursor-pointer">
+                Reset Score
+            </button>
+        </div>
 
     </div>
 
-    <script src="script.js"></script>
+    <!-- JavaScript Game Logic -->
+    <script>
+        // Game State Object
+        const score = {
+            win: 0,
+            lost: 0,
+            tie: 0
+        };
+
+        const emojiMap = {
+            'STONE': '✊',
+            'PAPER': '✋',
+            'SCISSOR': '✌️'
+        };
+
+        let isPlaying = false;
+        let soundEnabled = true;
+
+        // Sound Effects Synthesizer using Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'shake') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(120, now);
+                    osc.frequency.exponentialRampToValueAtTime(180, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'win') {
+                    const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                    freqs.forEach((f, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.type = 'sine';
+                        o.frequency.value = f;
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        g.gain.setValueAtTime(0.12, now + i * 0.08);
+                        g.gain.linearRampToValueAtTime(0.01, now + i * 0.08 + 0.25);
+                        o.start(now + i * 0.08);
+                        o.stop(now + i * 0.08 + 0.25);
+                    });
+                } else if (type === 'lose') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'tie') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(350, now);
+                    osc.frequency.setValueAtTime(350, now + 0.12);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.error('Audio playback error:', e);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('audioIcon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('audioBtn').classList.toggle('opacity-50', !soundEnabled);
+        }
+
+        // Particle Canvas Controller for Victory Effects
+        const canvas = document.getElementById('fxCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createConfetti() {
+            particles = [];
+            const colors = ['#34d399', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa'];
+            for (let i = 0; i < 70; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2 + 50,
+                    vx: (Math.random() - 0.5) * 16,
+                    vy: (Math.random() - 0.8) * 18,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    rotation: Math.random() * 360,
+                    vRot: (Math.random() - 0.5) * 10
+                });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.4; // Gravity
+                p.alpha -= 0.015;
+                p.rotation += p.vRot;
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+
+            if (particles.length > 0) {
+                requestAnimationFrame(animateParticles);
+            }
+        }
+
+        // Main Game Gameplay Logic
+        function playGame(userChoice) {
+            if (isPlaying) return;
+            isPlaying = true;
+
+            playSound('click');
+
+            // Cache UI Elements
+            const playerHandEl = document.getElementById('playerHand');
+            const computerHandEl = document.getElementById('computerHand');
+            const arenaEl = document.getElementById('arena');
+            const resultText = document.getElementById('resultText');
+            const movesDetailText = document.getElementById('movesDetailText');
+            const statusBadge = document.getElementById('statusBadge');
+            const choiceButtons = document.querySelectorAll('.choice-btn');
+
+            // Disable Choice Buttons during play
+            choiceButtons.forEach(btn => btn.disabled = true);
+
+            // Reset Display State for Shaking Phase
+            arenaEl.className = "w-full glass-card rounded-2xl p-6 flex flex-col items-center justify-between min-h-[220px] relative transition-all duration-300";
+            
+            playerHandEl.className = "text-6xl md:text-8xl transition-all duration-300 player-hand-base shaking-player filter drop-shadow-lg";
+            computerHandEl.className = "text-6xl md:text-8xl transition-all duration-300 computer-hand-base shaking-computer filter drop-shadow-lg";
+
+            playerHandEl.innerText = '✊';
+            computerHandEl.innerText = '✊';
+
+            statusBadge.innerText = 'Shaking...';
+            statusBadge.className = 'px-4 py-1.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider bg-indigo-900/80 text-indigo-200 border border-indigo-500/50 mb-2 animate-pulse';
+
+            resultText.innerText = 'Rock... Paper... Scissors...';
+            movesDetailText.innerText = '';
+
+            // Play rhythmic shaking sound effect
+            let shakeInterval = setInterval(() => {
+                playSound('shake');
+            }, 350);
+
+            // Complete Shaking Animation Phase (~1.35 seconds)
+            setTimeout(() => {
+                clearInterval(shakeInterval);
+
+                // Determine Computer Choice randomly
+                const choices = ['STONE', 'PAPER', 'SCISSOR'];
+                const computerChoice = choices[Math.floor(Math.random() * 3)];
+
+                // Remove Shake Classes and Apply Reveal Animation
+                playerHandEl.className = "text-6xl md:text-8xl transition-all duration-300 player-hand-base reveal-pop filter drop-shadow-lg";
+                computerHandEl.className = "text-6xl md:text-8xl transition-all duration-300 computer-hand-base reveal-pop filter drop-shadow-lg";
+
+                playerHandEl.innerText = emojiMap[userChoice];
+                computerHandEl.innerText = emojiMap[computerChoice];
+
+                // Calculate Match Result
+                let outcome = '';
+
+                if (userChoice === computerChoice) {
+                    outcome = 'TIE';
+                    score.tie++;
+                } else if (
+                    (userChoice === 'STONE' && computerChoice === 'SCISSOR') ||
+                    (userChoice === 'PAPER' && computerChoice === 'STONE') ||
+                    (userChoice === 'SCISSOR' && computerChoice === 'PAPER')
+                ) {
+                    outcome = 'WIN';
+                    score.win++;
+                } else {
+                    outcome = 'LOSE';
+                    score.lost++;
+                }
+
+                // Update UI based on Outcome
+                if (outcome === 'WIN') {
+                    resultText.innerText = "YOU WIN! 🎉";
+                    resultText.className = "text-xl md:text-2xl font-extrabold tracking-wide text-emerald-400";
+                    arenaEl.classList.add('glow-win');
+                    statusBadge.innerText = 'Victory!';
+                    statusBadge.className = 'px-4 py-1.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 mb-2';
+                    playSound('win');
+                    createConfetti();
+                    animateParticles();
+                } else if (outcome === 'LOSE') {
+                    resultText.innerText = "BOT WINS! 🤖";
+                    resultText.className = "text-xl md:text-2xl font-extrabold tracking-wide text-rose-400";
+                    arenaEl.classList.add('glow-lose');
+                    statusBadge.innerText = 'Defeat';
+                    statusBadge.className = 'px-4 py-1.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider bg-rose-950/80 text-rose-300 border border-rose-500/50 mb-2';
+                    playSound('lose');
+                } else {
+                    resultText.innerText = "IT'S A TIE! 🤝";
+                    resultText.className = "text-xl md:text-2xl font-extrabold tracking-wide text-amber-400";
+                    arenaEl.classList.add('glow-tie');
+                    statusBadge.innerText = 'Draw Game';
+                    statusBadge.className = 'px-4 py-1.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider bg-amber-950/80 text-amber-300 border border-amber-500/50 mb-2';
+                    playSound('tie');
+                }
+
+                movesDetailText.innerText = `You chose ${userChoice} vs Bot chose ${computerChoice}`;
+
+                // Update Score Cards with scale animation
+                updateScoreDisplay();
+
+                // Re-enable input buttons
+                choiceButtons.forEach(btn => btn.disabled = false);
+                isPlaying = false;
+
+            }, 1350);
+        }
+
+        // Helper function to animate score update
+        function updateScoreDisplay() {
+            const winEl = document.getElementById('winScore');
+            const lostEl = document.getElementById('lostScore');
+            const tieEl = document.getElementById('tieScore');
+
+            winEl.innerText = score.win;
+            lostEl.innerText = score.lost;
+            tieEl.innerText = score.tie;
+
+            [winEl, lostEl, tieEl].forEach(el => {
+                el.classList.add('scale-125');
+                setTimeout(() => el.classList.remove('scale-125'), 200);
+            });
+        }
+
+        // Reset Scoreboard Logic
+        function resetScore() {
+            playSound('click');
+
+            score.win = 0;
+            score.lost = 0;
+            score.tie = 0;
+
+            updateScoreDisplay();
+
+            // Reset UI Arena state
+            const arenaEl = document.getElementById('arena');
+            const playerHandEl = document.getElementById('playerHand');
+            const computerHandEl = document.getElementById('computerHand');
+            const resultText = document.getElementById('resultText');
+            const movesDetailText = document.getElementById('movesDetailText');
+            const statusBadge = document.getElementById('statusBadge');
+
+            arenaEl.className = "w-full glass-card rounded-2xl p-6 flex flex-col items-center justify-between min-h-[220px] relative transition-all duration-300";
+            
+            playerHandEl.className = "text-6xl md:text-8xl transition-all duration-300 player-hand-base filter drop-shadow-lg";
+            computerHandEl.className = "text-6xl md:text-8xl transition-all duration-300 computer-hand-base filter drop-shadow-lg";
+
+            playerHandEl.innerText = '✊';
+            computerHandEl.innerText = '✊';
+
+            statusBadge.innerText = 'Ready To Play';
+            statusBadge.className = 'px-4 py-1.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider bg-slate-800/80 text-indigo-300 border border-slate-700 mb-2';
+
+            resultText.innerText = 'Scores Reset!';
+            resultText.className = 'text-xl md:text-2xl font-extrabold tracking-wide text-slate-200';
+            movesDetailText.innerText = '';
+        }
+    </script>
 </body>
 </html>
